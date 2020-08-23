@@ -1,0 +1,85 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2511
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red252\green87\blue8;\red159\green242\blue92;\red27\green128\blue255;
+\red252\green9\blue7;\red201\green199\blue8;\red252\green41\blue19;\red191\green222\blue8;\red21\green93\blue255;
+\red189\green0\blue255;\red123\green221\blue55;\red240\green0\blue92;\red0\green0\blue0;\red231\green62\blue255;
+\red252\green59\blue130;}
+{\*\expandedcolortbl;;\cssrgb\c100000\c43066\c0;\cssrgb\c67668\c94348\c43431;\cssrgb\c11095\c58865\c100000;
+\cssrgb\c100000\c15764\c0;\cssrgb\c82582\c80870\c0;\cssrgb\c100000\c25745\c7993;\cssrgb\c79131\c88052\c0;\cssrgb\c8872\c47049\c100000;
+\cssrgb\c79900\c13904\c100000;\cssrgb\c54133\c87606\c27652;\cssrgb\c96309\c12481\c43306;\cssrgb\c0\c0\c0;\cssrgb\c93328\c38659\c100000;
+\cssrgb\c100000\c34492\c58133;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww37900\viewh18200\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\qc\partightenfactor0
+
+\f0\fs48 \cf2 CALL API\cf0  IN \cf3 SWIFTUI\
+\cf0  - \cf4 JSON\cf0  -\
+\
+1. Create a \cf5 swift file\cf0  with class name \'93\cf6 connectApi\cf7 :ObservableObject\cf0 \'94\
+2. import  \cf5 SwiftUI\cf0  in \cf6 connectApi\cf0  file.\
+3. import \cf5 Combine\cf0  in \cf6 connectApi\cf0  file.\
+4. Add \cf5 PassthroughSubject\cf0 <\cf8 classname\cf0 ,\cf9 never\cf0 >() <- this function only available if you \cf10 import\cf0  \cf11 Combine.\
+\cf0 \
+let \cf9 willChange\cf0  = \cf5 PassthroughSubject\cf0 <\cf8 connectApi\cf0 ,\cf9 never\cf0 >()\
+\
+5. Add \cf5 willSet\cf0  as written below:\
+\
+@\cf9 Published\cf0  \cf12 var\cf0  responseValue = [\cf9 album\cf0 ]()\{\
+\cf5 willSet\cf0 \{\
+\cf9 willChange.\cf11 send\cf0 (self)\
+\}\
+\
+\
+\
+@\cf9 Published\cf0  is allowing us to create observable objects. So, here \cf9 responseValue\cf0  is Observable object.\
+\
+6. Add function with name \cf9 callApi() inside \cf6 connectApi\cf9  Class\
+7. Add  \cf13 URLSession code inside \cf9 callApi()\cf13  as written below:\
+\
+let url = \cf9 URL\cf13 (string:\'94\cf5 Your url here\cf13 \'94)\
+let \cf9 requestURL\cf13  = \cf9 URLRequest\cf13 (url: url!)\
+\cf9 URLSession.shared.dataTask\cf13 (with: requestURL)\{ (data, response, error) in \
+\cf14 guard\cf13  \cf14 let\cf13  data = data \cf14 else\cf13  \{\
+return\
+\}\
+let JSONDecodedResponse = try! \cf9 JSONDecoder().decode\cf13 ([\cf11 album\cf13 ].self, from:data)\
+\cf9 DispatchQueue.main.async\cf13 \{\
+\cf5 self\cf11 .responseValue\cf13  = JSONDecodedResponse\
+\}\
+\}.resume()\
+\
+8. Go to \cf2 contentView.swift\cf13  file\
+9. Add \cf15 struct\cf13  with the \cf7 key\cf13  which you want to fetch from received json. \cf4 In my case getting three key in return json response.\
+\
+struct \cf11 album\cf4 : Decodable\{\
+\cf5 var\cf13  userId, id: \cf4 Int\cf13 \
+\cf5 var\cf13  title:\cf4 String\
+\}\
+\
+9. Add\cf13  @\cf4 ObservedObject\cf13  \cf15 var\cf13  manager = \cf5 class name\cf13  of \cf4 ObservableObject. In my case class name is \cf6 connectApi().\
+\cf4 \
+\cf13 @\cf4 ObservedObject\cf13  \cf15 var\cf13  manager = \cf6 connectApi\cf13 ()\
+\
+10. Add List code as written below:\
+\
+List(\cf11 manager.responseValue\cf13 , id: \\.\cf11 id\cf13 )\{\
+\cf4 item \cf13 in\
+HStack\{\
+Text(\cf5 \'93\cf13 \\(item.\cf11 id\cf13 )\cf5 \'94\cf13 )\
+Text(\cf5 \'93\cf13 \\(item.\cf11 title\cf13 )\cf5 \'94\cf13 )\
+\}\
+\}.\cf9 onAppear\cf13 (perform: manager.\cf11 callApi\cf13 )\
+\
+\
+ Here \cf11 completed\cf13 . Now let\'92s run and check.\
+if any \cf6 query\cf13  comment below.\
+\cf5 Thank you \cf13 \
+Have a \cf4 great day\cf13 . :)\
+\
+\
+\cf0 \
+\
+\
+\
+\
+\
+}
